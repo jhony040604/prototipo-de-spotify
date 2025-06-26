@@ -26,7 +26,7 @@ Spotify Clone
 
 Clona el repositorio:
 
-bashgit clone https://github.com/tu-usuario/tu-repositorio.git
+bashgit clone https://github.com/jhony040604/prototipo-de-spotify.git
 
 Navega al directorio del proyecto:
 

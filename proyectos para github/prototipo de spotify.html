@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Clone</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: white;
+            overflow: hidden;
+        }
+
+        .app {
+            display: grid;
+            grid-template-areas: 
+                "sidebar main"
+                "player player";
+            grid-template-columns: 240px 1fr;
+            grid-template-rows: 1fr 90px;
+            height: 100vh;
+        }
+
+        .sidebar {
+            grid-area: sidebar;
+            background-color: #000;
+            padding: 24px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 32px;
+            color: #1ed760;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            color: #b3b3b3;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .nav-item:hover {
+            color: white;
+        }
+
+        .nav-item.active {
+            color: white;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 16px;
+            fill: currentColor;
+        }
+
+        .main-content {
+            grid-area: main;
+            background: linear-gradient(180deg, #1f1f1f 0%, #121212 100%);
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .nav-btn {
+            background: rgba(0,0,0,0.7);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .user-btn {
+            background: #000;
+            border: none;
+            border-radius: 16px;
+            padding: 8px 16px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: #181818;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            position: relative;
+        }
+
+        .card:hover {
+            background: #282828;
+        }
+
+        .card:hover .play-btn {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card-image {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #1ed760, #1db954);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+
+        .card-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .card-description {
+            color: #b3b3b3;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .play-btn {
+            position: absolute;
+            bottom: 80px;
+            right: 16px;
+            background: #1ed760;
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            color: black;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .play-btn:hover {
+            transform: translateY(0) scale(1.05);
+        }
+
+        .player {
+            grid-area: player;
+            background: #181818;
+            border-top: 1px solid #282828;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+        }
+
+        .current-track {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .track-image {
+            width: 56px;
+            height: 56px;
+            border-radius: 4px;
+            background: linear-gradient(45deg, #1ed760, #1db954);
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .track-info h4 {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .track-info p {
+            font-size: 12px;
+            color: #b3b3b3;
+        }
+
+        .player-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            max-width: 722px;
+        }
+
+        .control-buttons {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: #b3b3b3;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: color 0.3s;
+        }
+
+        .control-btn:hover {
+            color: white;
+        }
+
+        .play-pause-btn {
+            background: white;
+            color: black;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .play-pause-btn:hover {
+            transform: scale(1.06);
+        }
+
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            gap: 8px;
+        }
+
+        .progress-time {
+            font-size: 11px;
+            color: #b3b3b3;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .progress-track {
+            flex: 1;
+            height: 4px;
+            background: #4f4f4f;
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+            width: 30%;
+            position: relative;
+        }
+
+        .progress-handle {
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .progress-track:hover .progress-handle {
+            opacity: 1;
+        }
+
+        .volume-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            justify-content: flex-end;
+        }
+
+        .volume-btn {
+            background: none;
+            border: none;
+            color: #b3b3b3;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .volume-bar {
+            width: 93px;
+            height: 4px;
+            background: #4f4f4f;
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .volume-fill {
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+            width: 70%;
+        }
+
+        .playlists {
+            margin-top: 32px;
+        }
+
+        .playlist-item {
+            color: #b3b3b3;
+            padding: 8px 0;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .playlist-item:hover {
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .app {
+                grid-template-columns: 1fr;
+                grid-template-areas: 
+                    "main"
+                    "player";
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .cards-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="logo">🎵 Spotify</div>
+            
+            <nav>
+                <div class="nav-item active">
+                    <svg class="nav-icon" viewBox="0 0 24 24">
+                        <path d="M12.5 3.247a1 1 0 0 0-1 0L4 7.577V20h4.5v-6a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v6H20V7.577l-7.5-4.33z"/>
+                    </svg>
+                    Inicio
+                </div>
+                <div class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24">
+                        <path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28zm-7.407 9.279c0-4.006 3.302-7.28 7.407-7.28s7.407 3.274 7.407 7.28-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.28z"/>
+                    </svg>
+                    Buscar
+                </div>
+                <div class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24">
+                        <path d="M14.5 2.134a1 1 0 0 1 1 0l6 3.464a1 1 0 0 1 .5.866V21a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6.464a1 1 0 0 1 .5-.866l6-3.464a1 1 0 0 1 1 0L12 3.798l2.5-1.664zM4 7.464V20h16V7.464l-5-2.887v2.423a1 1 0 1 1-2 0V4.577L4 7.464z"/>
+                    </svg>
+                    Tu biblioteca
+                </div>
+            </nav>
+
+            <div class="playlists">
+                <div class="playlist-item">Creada por ti</div>
+                <div class="playlist-item">Escuchadas recientemente</div>
+                <div class="playlist-item">Tus me gusta</div>
+                <div class="playlist-item">Mix diario 1</div>
+                <div class="playlist-item">Discover Weekly</div>
+                <div class="playlist-item">Rock Classics</div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="nav-buttons">
+                    <button class="nav-btn">‹</button>
+                    <button class="nav-btn">›</button>
+                </div>
+                <button class="user-btn">Usuario</button>
+            </header>
+
+            <section>
+                <h2 class="section-title">Buenas tardes</h2>
+                <div class="cards-grid">
+                    <div class="card" onclick="playTrack('Mix diario 1', 'Tu música diaria')">
+                        <div class="card-image">🎵</div>
+                        <div class="card-title">Mix diario 1</div>
+                        <div class="card-description">Tu música diaria</div>
+                        <button class="play-btn">▶</button>
+                    </div>
+                    <div class="card" onclick="playTrack('Discover Weekly', 'Tu mixtape semanal')">
+                        <div class="card-image">🎼</div>
+                        <div class="card-title">Discover Weekly</div>
+                        <div class="card-description">Tu mixtape semanal</div>
+                        <button class="play-btn">▶</button>
+                    </div>
+                    <div class="card" onclick="playTrack('Tus me gusta', 'Tus canciones favoritas')">
+                        <div class="card-image">❤️</div>
+                        <div class="card-title">Tus me gusta</div>
+                        <div class="card-description">Tus canciones favoritas</div>
+                        <button class="play-btn">▶</button>
+                    </div>
+                    <div class="card" onclick="playTrack('Rock Classics', 'Los mejores hits del rock')">
+                        <div class="card-image">🎸</div>
+                        <div class="card-title">Rock Classics</div>
+                        <div class="card-description">Los mejores hits del rock</div>
+                        <button class="play-btn">▶</button>
+                    </div>
+                    <div class="card" onclick="playTrack('Pop Hits', 'Lo más popular del momento')">
+                        <div class="card-image">🌟</div>
+                        <div class="card-title">Pop Hits</div>
+                        <div class="card-description">Lo más popular del momento</div>
+                        <button class="play-btn">▶</button>
+                    </div>
+                    <div class="card" onclick="playTrack('Chill Vibes', 'Música relajante')">
+                        <div class="card-image">🌙</div>
+                        <div class="card-title">Chill Vibes</div>
+                        <div class="card-description">Música relajante</div>
+                        <button class="play-btn">▶</button>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="section-title">Hechas para ti</h2>
+                <div class="cards-grid">
+                    <div class="card" onclick="playTrack('Release Radar', 'Nuevos lanzamientos')">
+                        <div class="card-image">📡</div>
+                        <div class="card-title">Release Radar</div>
+                        <div class="card-description">Nuevos lanzamientos para ti</div>
+                        <button class="play-btn">▶</button>
+                    </div>
+                    <div class="card" onclick="playTrack('Mix de los 80s', 'Hits de los 80s')">
+                        <div class="card-image">🕺</div>
+                        <div class="card-title">Mix de los 80s</div>
+                        <div class="card-description">Hits de los 80s</div>
+                        <button class="play-btn">▶</button>
+                    </div>
+                    <div class="card" onclick="playTrack('Indie Mix', 'Música independiente')">
+                        <div class="card-image">🎨</div>
+                        <div class="card-title">Indie Mix</div>
+                        <div class="card-description">Música independiente</div>
+                        <button class="play-btn">▶</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="player">
+            <div class="current-track">
+                <div class="track-image">🎵</div>
+                <div class="track-info">
+                    <h4 id="current-song">Selecciona una canción</h4>
+                    <p id="current-artist">Artista</p>
+                </div>
+            </div>
+
+            <div class="player-controls">
+                <div class="control-buttons">
+                    <button class="control-btn">🔀</button>
+                    <button class="control-btn">⏮</button>
+                    <button class="play-pause-btn" id="playPauseBtn" onclick="togglePlay()">▶</button>
+                    <button class="control-btn">⏭</button>
+                    <button class="control-btn">🔁</button>
+                </div>
+                <div class="progress-bar">
+                    <span class="progress-time">0:00</span>
+                    <div class="progress-track" onclick="seekTo(event)">
+                        <div class="progress-fill" id="progressFill">
+                            <div class="progress-handle"></div>
+                        </div>
+                    </div>
+                    <span class="progress-time">3:45</span>
+                </div>
+            </div>
+
+            <div class="volume-controls">
+                <button class="volume-btn">🔊</button>
+                <div class="volume-bar" onclick="setVolume(event)">
+                    <div class="volume-fill" id="volumeFill"></div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        let isPlaying = false;
+        let currentProgress = 0;
+
+        function playTrack(title, description) {
+            document.getElementById('current-song').textContent = title;
+            document.getElementById('current-artist').textContent = description;
+            
+            // Simular reproducción
+            isPlaying = true;
+            document.getElementById('playPauseBtn').textContent = '⏸';
+            
+            // Simular progreso (opcional)
+            simulateProgress();
+        }
+
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('playPauseBtn');
+            btn.textContent = isPlaying ? '⏸' : '▶';
+            
+            if (isPlaying) {
+                simulateProgress();
+            }
+        }
+
+        function simulateProgress() {
+            if (!isPlaying) return;
+            
+            const progressInterval = setInterval(() => {
+                if (!isPlaying) {
+                    clearInterval(progressInterval);
+                    return;
+                }
+                
+                currentProgress += 1;
+                if (currentProgress > 100) {
+                    currentProgress = 0;
+                }
+                
+                document.getElementById('progressFill').style.width = currentProgress + '%';
+            }, 1000);
+        }
+
+        function seekTo(event) {
+            const progressBar = event.currentTarget;
+            const rect = progressBar.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const width = rect.width;
+            const percentage = (clickX / width) * 100;
+            
+            currentProgress = percentage;
+            document.getElementById('progressFill').style.width = percentage + '%';
+        }
+
+        function setVolume(event) {
+            const volumeBar = event.currentTarget;
+            const rect = volumeBar.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const width = rect.width;
+            const percentage = (clickX / width) * 100;
+            
+            document.getElementById('volumeFill').style.width = percentage + '%';
+        }
+
+        // Efectos de hover mejorados
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05)';
+                this.style.transition = 'transform 0.3s ease';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        // Navegación con teclado
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space') {
+                event.preventDefault();
+                togglePlay();
+            }
+        });
+    </script>
+</body>
+</html>
